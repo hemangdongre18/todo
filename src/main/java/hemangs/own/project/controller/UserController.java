@@ -19,7 +19,7 @@ public class UserController {
         return "test successfull.";
     }
 
-    @GetMapping
+    @GetMapping("/All")
     public List<User> getAllUsers() {
         return userService.getAllUsers();
     }
