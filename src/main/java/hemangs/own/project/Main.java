@@ -1,10 +1,13 @@
-package hemangs.own.project;
+package hemangs.own.project; // Correct package declaration
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+
+@SpringBootApplication
+@EnableJpaRepositories(basePackages = "hemangs.own.project.repository") // Ensure this matches the correct package name
 public class Main {
     public static void main(String[] args) {
-
-        System.out.printf("Hello and welcome!");
+        SpringApplication.run(Main.class, args);
     }
 }
