@@ -19,32 +19,50 @@ public class UserController {
         return "test successfull.";
     }
 
-    @GetMapping("/All")
+    @GetMapping("/AllUsers")
     public List<User> getAllUsers() {
         return userService.getAllUsers();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+    @GetMapping("/GetUser/{id}")
+    public ResponseEntity<User> getUserById(@PathVariable String id) {
         return userService.getUserById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping
-    public User createUser(@RequestBody User user) {
-        return userService.createUser(user);
+    @PostMapping("/CreateUser")
+    public String createUser(@RequestBody User user) { //need to change it to optional at some point.
+        boolean save = userService.createUser(user);
+        if(save)
+                return "Profile Created";
+        return "Email Already Exists!";
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User userDetails) {
+    @PostMapping("/Login")
+    public String loginUser(@RequestBody User user) { //need to change it to optional at some point.
+        boolean validateUser = userService.loginCheck(user);
+        if(validateUser == true) {
+            return "correct Creds!!";
+        }
+        return "Incorrect Creds.";
+    }
+
+    @PutMapping("/UpdateUser/{id}")
+    public ResponseEntity<User> updateUser(@PathVariable String id, @RequestBody User userDetails) {
         User updatedUser = userService.updateUser(id, userDetails);
         return ResponseEntity.ok(updatedUser);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+    @DeleteMapping("/DeleteUser/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable String id) {
         userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/DeleteAllUser")
+    public ResponseEntity<Void> deleteAllUser(@PathVariable String id) {
+        userService.deleteAllUser();
         return ResponseEntity.noContent().build();
     }
 }
