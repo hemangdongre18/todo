@@ -32,22 +32,38 @@ public class UserService {
         return true;
     }
 
-    public boolean createUser(User user) {
-        String userEmail = user.getEmail();
-        if(!validateEmail(userEmail) ) {
-            userRepository.save(user);
-            return true;
-        }
-        return false;
+    public boolean doesEmailExist(User user){
+        String email = user.getEmail();
+        Optional<User> existingUser = userRepository.findById(email);
+
+        if(existingUser.isEmpty())
+                return false; //No user does not exist
+        return true; //yes this user exist
     }
 
-    public boolean loginCheck(User user){
-        String userEmail = user.getEmail();
-        if(validateEmail(userEmail) && loginPageService.validatePassword(user)) {
-            return true;
+    public boolean checkPassword(User user){
+        String inputEmail = user.getEmail();
+        Optional<User> optionalExistingUser = userRepository.findById(inputEmail);
+        String inputPassword = user.getPassword();
+
+        if(optionalExistingUser.isPresent()) {
+            User existingUser = optionalExistingUser.get();
+            String existingPassword = existingUser.getPassword();
+
+            return existingPassword.equals(inputPassword); //password is currect
         }
-        return false;
+
+        else return false;
     }
+
+    public String login(){
+        return "login successful!";
+    }
+
+    public void createUser(User user){
+        userRepository.save(user);
+    }
+
 
     public User updateUser(String email, User userDetails) {
         User user = userRepository.findById(email)

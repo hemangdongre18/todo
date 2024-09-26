@@ -33,21 +33,23 @@ public class UserController {
 
     @PostMapping("/CreateUser")
     public String createUser(@RequestBody User user) { //need to change it to optional at some point.
-        boolean save = userService.createUser(user);
-        if(save)
-                return "Profile Created";
+        boolean save = userService.doesEmailExist(user);
+        if(!save){
+            userService.createUser(user);
+            return "Profile Created";
+        }
         return "Email Already Exists!";
     }
 
     @PostMapping("/Login")
     public String loginUser(@RequestBody User user) { //need to change it to optional at some point.
-        boolean validateUser = userService.loginCheck(user);
-        if(validateUser == true) {
-            return "correct Creds!!";
+        boolean correctEmail = userService.doesEmailExist(user);
+        boolean correctPassword = userService.checkPassword(user);
+        if(correctEmail && correctPassword){
+             return userService.login();
         }
-        return "Incorrect Creds.";
+        return "Invalid creds.";
     }
-
     @PutMapping("/UpdateUser/{id}")
     public ResponseEntity<User> updateUser(@PathVariable String id, @RequestBody User userDetails) {
         User updatedUser = userService.updateUser(id, userDetails);
