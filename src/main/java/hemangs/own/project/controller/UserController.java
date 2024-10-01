@@ -2,6 +2,7 @@ package hemangs.own.project.controller;
 
 import hemangs.own.project.model.User;
 import hemangs.own.project.service.UserService;
+import hemangs.own.project.service.WebsitesScraping;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -66,5 +67,12 @@ public class UserController {
     public ResponseEntity<Void> deleteAllUser(@PathVariable String id) {
         userService.deleteAllUser();
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/scrape")
+    public String scrapeTest(){
+        WebsitesScraping websitesScraping = new WebsitesScraping();
+        String scrappedData = websitesScraping.scrapingLeetCode();
+        return ( scrappedData + "scrapping done!!");
     }
 }
