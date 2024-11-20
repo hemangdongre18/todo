@@ -1,36 +1,42 @@
 package hemangs.own.project.service;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.springframework.stereotype.Service;
-import io.github.bonigarcia.wdm.WebDriverManager;
 
-import java.time.Duration;
-
+import java.io.*;
 
 @Service
 public class WebsitesScraping {
 
-    public String scrapingLeetCode(){
-        WebDriverManager.chromedriver().driverVersion("129.0.6668.59").setup();
-        WebDriver driver = new ChromeDriver();
+    private static final OkHttpClient client = new OkHttpClient();
+    public static String scrapeLeetCodeWebPage(String LEETCODE_URL) throws IOException {
+        Request.Builder requestBuilder = new Request.Builder().url(LEETCODE_URL);
+        requestBuilder.get();
 
-        try{
-            driver.get("https://leetcode.com/u/Em_hemang/");
-            String websiteText = ".text-label-1.dark\\:text-dark-label-1.break-all.text-base.font-semibold";
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-            WebElement webElement = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(websiteText)));
-            //WebElement webElement = driver.findElement(By.cssSelector(websiteText));
-            String extractedText = webElement.getText();
-            System.out.println("leetcodes scraped Text:" + extractedText);
-            return extractedText;
+        Request request = new Request.Builder()
+                .url(LEETCODE_URL)
+                .get()
+                .header("User-Agent", "Mozilla/5.0 (compatible; Bot/1.0)") // Add User-Agent header
+                .build();
 
-        }finally {
-            driver.quit();
+
+        try(Response response = client.newCall(request).execute()){
+            if(!response.isSuccessful())
+                return "response is not successfull...";
+            return "SUcessfull HTTPS response"+response.body().string();
         }
+    }
+
+    public static String getUserNameFromLeetcode(String url) throws IOException {
+        String userWebPage =  scrapeLeetCodeWebPage(url);
+        String searchUsernameStart = "<div class=\"text-label-1 dark:text-dark-label-1 break-all text-base font-semibold\">";
+        int indexOfUsernameStart = userWebPage.indexOf(searchUsernameStart);
+        indexOfUsernameStart +=83;
+        String searchUsernameStop = "</div></div><div class=\"flex items-center\" translate=\"no\"><div class=\"text-label-3 dark:text-dark-label-3 text-xs\">";
+        int indexOfUsernameStop = userWebPage.indexOf(searchUsernameStop);
+        String userName = userWebPage.substring(indexOfUsernameStart, indexOfUsernameStop);
+        return userName;
     }
 }

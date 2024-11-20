@@ -4,9 +4,11 @@ import hemangs.own.project.model.User;
 import hemangs.own.project.service.UserService;
 import hemangs.own.project.service.WebsitesScraping;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -14,6 +16,13 @@ import java.util.List;
 public class UserController {
     @Autowired
     private UserService userService;
+    @Autowired
+    private WebsitesScraping websitesScraping;
+    @Autowired
+    public UserController(WebsitesScraping websitesScraping) {
+        this.websitesScraping = websitesScraping;
+    }
+
 
     @GetMapping("/test")
     public String test(){
@@ -43,14 +52,16 @@ public class UserController {
     }
 
     @PostMapping("/Login")
-    public String loginUser(@RequestBody User user) { //need to change it to optional at some point.
+    public ResponseEntity<String> loginUser(@RequestBody User user) { //need to change it to optional at some point.
         boolean correctEmail = userService.doesEmailExist(user);
         boolean correctPassword = userService.checkPassword(user);
         if(correctEmail && correctPassword){
-             return userService.login();
+            String loginResponse = userService.login();
+            return ResponseEntity.ok(loginResponse);
         }
-        return "Invalid creds.";
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
     }
+
     @PutMapping("/UpdateUser/{id}")
     public ResponseEntity<User> updateUser(@PathVariable String id, @RequestBody User userDetails) {
         User updatedUser = userService.updateUser(id, userDetails);
@@ -64,15 +75,20 @@ public class UserController {
     }
 
     @DeleteMapping("/DeleteAllUser")
-    public ResponseEntity<Void> deleteAllUser(@PathVariable String id) {
+    public ResponseEntity<Void> deleteAllUser() {
         userService.deleteAllUser();
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/scrape")
-    public String scrapeTest(){
-        WebsitesScraping websitesScraping = new WebsitesScraping();
-        String scrappedData = websitesScraping.scrapingLeetCode();
-        return ( scrappedData + "scrapping done!!");
+    @GetMapping("/ScrapeWebsiteTest")
+    public ResponseEntity<String> ScrapeWebsiteTest(@RequestParam String url) throws IOException {
+        System.out.println("made itto webpage controller!! and URL is : "+url);
+        return ResponseEntity.ok(websitesScraping.scrapeLeetCodeWebPage(url));
+    }
+
+    @GetMapping("/ScrapeUsername")
+    public ResponseEntity<String> ScrapeUsername(@RequestParam String url) throws IOException {
+        System.out.println("got into username controller!! and URL is : "+url);
+        return ResponseEntity.ok(websitesScraping.getUserNameFromLeetcode(url));
     }
 }
